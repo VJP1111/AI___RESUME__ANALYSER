@@ -1,0 +1,48 @@
+# Function to extract text from a PDF file
+def extract_text_from_pdf(file):
+    pdf_reader = PyPDF2.PdfReader(file)
+    text = ""
+    for page in pdf_reader.pages:
+        text += page.extract_text()
+    return text
+
+# A list of skills to search for
+SKILLS = [
+    'Python', 'JavaScript', 'Java', 'C++', 'SQL', 'MongoDB',
+    'Django', 'Flask', 'React', 'Node.js',
+    'Git', 'Docker', 'AWS', 'JIRA',
+    'Project Management', 'Communication', 'Teamwork'
+]
+
+def get_skills(text):
+    found_skills = []
+    for skill in SKILLS:
+        if skill.lower() in text.lower():
+            found_skills.append(skill)
+    return found_skills
+
+st.title("Resume Analyzer & Enhancement Assistant")
+st.write("Upload your resume to get AI-powered suggestions!")
+
+uploaded_file = st.file_uploader("Choose a PDF or text file", type=["pdf", "txt"])
+
+if uploaded_file is not None:
+    st.success("File uploaded successfully!")
+    
+    # Read the file and extract text
+    if uploaded_file.type == "application/pdf":
+        resume_text = extract_text_from_pdf(uploaded_file)
+        st.subheader("Extracted Text:")
+        st.write(resume_text)
+    elif uploaded_file.type == "text/plain":
+        resume_text = uploaded_file.read().decode("utf-8")
+        st.subheader("Extracted Text:")
+        st.write(resume_text)
+
+    # Get and display the skills found in the resume
+    skills_found = get_skills(resume_text)
+    if skills_found:
+        st.subheader("Skills Found:")
+        st.write(", ".join(skills_found))
+    else:
+        st.write("No skills were found in the resume text.")

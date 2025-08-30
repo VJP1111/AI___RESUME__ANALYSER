@@ -1,0 +1,266 @@
+# app_upgraded.py
+"""
+Upgrades your existing Streamlit app (app.py) WITHOUT changing it.
+This file imports your original app as `core` and re-uses its functions
+while adding:
+ - colored donut chart (no black slice)
+ - improved dashboard layout (tabs, job filters)
+ - job recommendations (Jooble if JOOBLE_API_KEY set; fallback jobs otherwise)
+ - PDF download via core.create_pdf (re-uses your PDF generator)
+Run: streamlit run app_upgraded.py
+"""
+
+import os
+import tempfile
+import streamlit as st
+import plotly.graph_objects as go
+import requests
+import pandas as pd
+
+# Import your original app (keeps it unchanged)
+import app as core  # app.py must be in same folder
+
+# Read Jooble API key (optional). Set env var JOOBLE_API_KEY=<your_key>
+JOOBLE_API_KEY = os.getenv("JOOBLE_API_KEY", "").strip()
+
+# New donut with colors
+def plot_donut_colored(matched_count: int, missing_count: int):
+    fig = go.Figure(go.Pie(
+        labels=["Matching Skills", "Missing Skills"],
+        values=[matched_count, missing_count],
+        hole=0.5,
+        marker=dict(colors=["#16a34a", "#ef4444"])  # green and red
+    ))
+    fig.update_layout(height=320, margin=dict(l=10, r=10, t=40, b=10))
+    return fig
+
+# Job fetcher: Jooble (if key) else fallback sample jobs filtered by keywords
+def fetch_jobs_by_keywords(keywords, location=None, limit=12):
+    keywords = [k for k in keywords if k and isinstance(k, str)]
+    if JOOBLE_API_KEY:
+        endpoint = f"https://jooble.org/api/{JOOBLE_API_KEY}"
+        payload = {"keywords": " ".join(keywords[:8]), "location": location or "", "page": 1, "per_page": limit}
+        try:
+            r = requests.post(endpoint, json=payload, timeout=8)
+            if r.status_code == 200:
+                data = r.json()
+                jobs = []
+                for j in data.get("jobs", [])[:limit]:
+                    jobs.append({
+                        "title": j.get("title"),
+                        "company": j.get("company"),
+                        "location": j.get("location"),
+                        "snippet": j.get("snippet") or j.get("description") or "",
+                        "link": j.get("link") or j.get("url") or "#"
+                    })
+                return jobs
+        except Exception as e:
+            # network or API problem -> fallback to local
+            st.warning("Job API unreachable, showing local recommendations. (Error: {})".format(e))
+    # Fallback local job list (simple, safe)
+    sample_jobs = [
+        {"title":"Software Engineer","company":"TechCorp","location":"Remote","snippet":"Build backend services using Python and Docker","link":"#"},
+        {"title":"Data Scientist","company":"DataLab","location":"Bangalore","snippet":"Models, Python, ML, NLP","link":"#"},
+        {"title":"Frontend Developer","company":"WebFlow","location":"Remote","snippet":"React, HTML, CSS, JavaScript","link":"#"},
+        {"title":"Machine Learning Engineer","company":"MLWorks","location":"San Francisco","snippet":"Deep learning, PyTorch, TensorFlow","link":"#"},
+        {"title":"DevOps Engineer","company":"InfraTeam","location":"Remote","snippet":"Docker, Kubernetes, AWS","link":"#"}
+    ]
+    # simple keyword filter
+    if keywords:
+        out = []
+        q = " ".join(keywords).lower()
+        for j in sample_jobs:
+            combined = (j["title"] + " " + j["snippet"] + " " + j["company"]).lower()
+            if any(kw.lower() in combined for kw in keywords):
+                out.append(j)
+        if out:
+            return out[:limit]
+    return sample_jobs[:limit]
+
+# Main upgraded analyzer UI (re-uses your core functions)
+def upgraded_analyzer():
+    # initialize core session and db if needed
+    core.init_db()
+    core.init_session()
+
+    nlp = core.load_spacy()
+    model = core.load_st_model()
+
+    # Sidebar (re-use your auth controls)
+    with st.sidebar:
+        st.success(f"👤 Logged in as **{st.session_state.auth['username']}**")
+        if st.button("🚪 Logout"):
+            st.session_state.auth = {"logged_in": False, "username": None, "mode": "login"}
+            st.experimental_rerun()
+        st.markdown("---")
+        st.caption("Upgraded dashboard: colored donut, job recommendations, filters")
+
+    st.title("🧠 Upgraded Resume Analyzer — Interactive Dashboard")
+
+    # upload and optional JD
+    c1, c2 = st.columns([1, 1])
+    with c1:
+        uploaded = st.file_uploader("Upload Resume (PDF/DOCX/TXT)", type=["pdf","docx","txt"])
+    with c2:
+        jd_text = st.text_area("Paste Job Description (optional)", height=220, placeholder="Optional: paste full JD to compare against")
+
+    # jobs filter
+    st.markdown("### 🔎 Job Recommendation Filters")
+    col_a, col_b, col_c = st.columns([1,1,1])
+    with col_a:
+        location = st.text_input("Location (optional)", placeholder="e.g. Remote, Bangalore")
+    with col_b:
+        remote_only = st.checkbox("Show Remote only", value=False)
+    with col_c:
+        jobs_limit = st.slider("Jobs to return", 3, 12, 6)
+
+    if uploaded:
+        # read text using your function (handles pdf/docx/txt)
+        resume_text = core.read_resume_file(uploaded)
+        if not resume_text.strip():
+            st.error("Could not read resume file. Try another file.")
+            return
+
+        # Extract candidate and skills using your existing functions
+        candidate_name = core.extract_candidate_name(resume_text, nlp)
+        resume_skills = core.get_skill_candidates(resume_text, nlp)
+        if jd_text and jd_text.strip():
+            jd_skills = core.get_skill_candidates(jd_text, nlp)
+        else:
+            jd_skills = []
+
+        # Semantic matching (if JD provided)
+        if jd_skills:
+            exact, mapping, score = core.semantic_skill_match(resume_skills, jd_skills, model)
+        else:
+            exact, mapping, score = set(), [], 0.0
+
+        exact_matches = sorted(list(exact))
+        missing_df = core.rank_missing(mapping) if mapping else pd.DataFrame([])
+
+        # counts for charts
+        matched_count = len(exact_matches)
+        missing_count = max(0, len(core.dedup_preserve_order(jd_skills)) - matched_count) if jd_skills else 0
+
+        # Tabs
+        tab_overview, tab_skills, tab_suggestions, tab_jobs = st.tabs(["📊 Overview","🔎 Skills","🚀 Suggestions","💼 Jobs"])
+
+        with tab_overview:
+            # gauge (reuse your function)
+            st.plotly_chart(core.plot_gauge(score), use_container_width=True)
+            # colored donut
+            donut_fig = plot_donut_colored(matched_count, missing_count)
+            st.plotly_chart(donut_fig, use_container_width=True)
+
+            st.markdown(f"**Candidate:** {candidate_name}")
+            if jd_text:
+                st.markdown(f"**Job title (heuristic):** {core.extract_job_title(jd_text, nlp)}")
+            st.markdown(f"**Detected resume skills:** {', '.join(resume_skills) if resume_skills else '—'}")
+
+        with tab_skills:
+            st.subheader("Exact Matches")
+            st.write(", ".join(exact_matches) if exact_matches else "No exact matches detected.")
+            st.subheader("Semantic Mapping (Required vs Closest in resume)")
+            if mapping:
+                show_df = pd.DataFrame([{
+                    "Required Skill": m["jd_skill"],
+                    "Exact": "Yes" if m["exact"] else "No",
+                    "Closest Resume Skill": m["closest_resume_skill"],
+                    "Similarity (%)": round(m["similarity"]*100,1)
+                } for m in mapping])
+                st.dataframe(show_df, use_container_width=True)
+            else:
+                st.info("No JD provided — paste a Job Description to see mapping.")
+
+        with tab_suggestions:
+            st.subheader("Enhancement Roadmap (Ranked)")
+            if not missing_df.empty:
+                st.dataframe(missing_df, use_container_width=True)
+                st.caption("Priority based on semantic similarity (lower sim → higher priority).")
+                st.markdown("### Actionable Suggestions")
+                for _, r in missing_df.head(10).iterrows():
+                    st.markdown(f"- {core.suggestion_for_skill(r['Required Skill'], r['Closest Resume Skill'], r['Similarity'])}")
+            else:
+                st.success("No missing skills or no JD provided. Focus on portfolio & metrics!")
+
+        with tab_jobs:
+            st.subheader("Recommended Jobs")
+            # compute keywords for job search: prefer resume_skills, fallback to JD skills, fallback to words from resume
+            keywords = resume_skills if resume_skills else (jd_skills if jd_skills else [])
+            jobs = fetch_jobs_by_keywords(keywords, location=location if location else None, limit=jobs_limit)
+            # filter remote if requested
+            if remote_only:
+                jobs = [j for j in jobs if "remote" in (j.get("location") or "").lower() or "remote" in (j.get("snippet") or "").lower()]
+            if not jobs:
+                st.info("No job matches found for the extracted skills. Try removing filters or add more skills.")
+            else:
+                for j in jobs:
+                    st.markdown(f"**{j.get('title')}** — *{j.get('company')}*")
+                    st.write(j.get("location") or "")
+                    if j.get("snippet"):
+                        st.write(j.get("snippet"))
+                    if j.get("link"):
+                        st.markdown(f"[View / Apply]({j.get('link')})")
+                    st.markdown("---")
+
+        # PDF generation (use your create_pdf)
+        with st.spinner("Preparing PDF report..."):
+            donut_path = gauge_path = None
+            try:
+                # save donut & gauge images temporarily for PDF
+                with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as f:
+                    donut_fig.write_image(f.name, engine="kaleido")
+                    donut_path = f.name
+                # use your gauge fig
+                gauge_fig = core.plot_gauge(score)
+                with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as f2:
+                    gauge_fig.write_image(f2.name, engine="kaleido")
+                    gauge_path = f2.name
+
+                pdf_bytes = core.create_pdf(
+                    candidate_name=candidate_name,
+                    job_title=core.extract_job_title(jd_text, nlp) if jd_text else "N/A",
+                    username=st.session_state.auth.get("username", "anonymous"),
+                    score=score,
+                    donut_path=donut_path,
+                    gauge_path=gauge_path,
+                    matching_list=exact_matches,
+                    missing_df=missing_df
+                )
+            finally:
+                # cleanup images
+                try:
+                    if donut_path and os.path.exists(donut_path):
+                        os.remove(donut_path)
+                except Exception:
+                    pass
+                try:
+                    if gauge_path and os.path.exists(gauge_path):
+                        os.remove(gauge_path)
+                except Exception:
+                    pass
+
+        st.download_button("📄 Download PDF Report", data=pdf_bytes, file_name=f"{candidate_name.replace(' ','_')}_analysis.pdf", mime="application/pdf")
+
+    else:
+        st.info("Upload a resume to start analysis. Paste a Job Description to enable matching/missing analysis.")
+
+# Bootstrapping: re-use core UI for auth and then call upgraded analyzer
+def main():
+    # ensure db + session exist (re-uses functions in your unchanged app.py)
+    core.init_db()
+    core.init_session()
+
+    if not st.session_state.auth["logged_in"]:
+        # reuse your existing login/signup UI to keep behavior unchanged
+        if st.session_state.auth["mode"] == "login":
+            core.ui_login()
+        else:
+            core.ui_signup()
+    else:
+        upgraded_analyzer()
+
+if __name__ == "__main__":
+    main()
+
+

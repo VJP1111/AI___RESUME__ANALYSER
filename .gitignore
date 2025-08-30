@@ -1,0 +1,44 @@
+# Virtual Environment
+venv/
+env/
+.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Database
+*.db
+*.sqlite3
+
+# Temporary files
+tmp/
+temp/
+uploads/
+reports/
+
+# Personal files
+*.txt
+*.pdf
+!requirements.txt
+!runtime.txt
+
+# Cache
+.streamlit/
+embed_cache/
