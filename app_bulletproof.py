@@ -1,654 +1,654 @@
-# =============================================================================
-# 🚀 WORKING AI RESUME ANALYZER - GUARANTEED TO WORK
-# PDF Generation + Job Recommendations WORKING VERSION
-# =============================================================================
+# # =============================================================================
+# # 🚀 WORKING AI RESUME ANALYZER - GUARANTEED TO WORK
+# # PDF Generation + Job Recommendations WORKING VERSION
+# # =============================================================================
 
-import streamlit as st
-import os
-import datetime
-import json
-from pathlib import Path
-from typing import Dict, List, Any
-import pandas as pd
-import numpy as np
-import plotly.graph_objects as go
-import io
-import base64
+# import streamlit as st
+# import os
+# import datetime
+# import json
+# from pathlib import Path
+# from typing import Dict, List, Any
+# import pandas as pd
+# import numpy as np
+# import plotly.graph_objects as go
+# import io
+# import base64
 
-# Document Processing
-import PyPDF2
-import docx
+# # Document Processing
+# import PyPDF2
+# import docx
 
-# Basic AI/NLP
-from textblob import TextBlob
-import requests
+# # Basic AI/NLP
+# from textblob import TextBlob
+# import requests
 
-# Configuration
-st.set_page_config(
-    page_title="Working AI Resume Analyzer",
-    page_icon="🚀", 
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
+# # Configuration
+# st.set_page_config(
+#     page_title="Working AI Resume Analyzer",
+#     page_icon="🚀", 
+#     layout="wide",
+#     initial_sidebar_state="expanded"
+# )
 
-# Modern Styling
-st.markdown("""
-<style>
-    .stApp {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
+# # Modern Styling
+# st.markdown("""
+# <style>
+#     .stApp {
+#         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+#     }
     
-    .nexgen-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        padding: 2rem; border-radius: 15px; color: white; text-align: center;
-        margin-bottom: 2rem; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-    }
+#     .nexgen-header {
+#         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+#         padding: 2rem; border-radius: 15px; color: white; text-align: center;
+#         margin-bottom: 2rem; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+#     }
     
-    .ai-metric {
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        padding: 1.5rem; border-radius: 12px; color: white; text-align: center;
-        margin: 0.5rem 0; box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-    }
+#     .ai-metric {
+#         background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+#         padding: 1.5rem; border-radius: 12px; color: white; text-align: center;
+#         margin: 0.5rem 0; box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+#     }
     
-    .skill-tag {
-        background: linear-gradient(45deg, #4facfe 0%, #00f2fe 100%);
-        color: white; padding: 0.4rem 1rem; border-radius: 25px;
-        margin: 0.3rem; display: inline-block; font-size: 0.9rem;
-    }
-</style>
-""", unsafe_allow_html=True)
+#     .skill-tag {
+#         background: linear-gradient(45deg, #4facfe 0%, #00f2fe 100%);
+#         color: white; padding: 0.4rem 1rem; border-radius: 25px;
+#         margin: 0.3rem; display: inline-block; font-size: 0.9rem;
+#     }
+# </style>
+# """, unsafe_allow_html=True)
 
-# Skills Database
-SKILLS = [
-    'Python', 'JavaScript', 'Java', 'C++', 'React', 'Angular', 'Vue.js',
-    'Node.js', 'Django', 'Flask', 'Machine Learning', 'Deep Learning',
-    'TensorFlow', 'PyTorch', 'SQL', 'MongoDB', 'PostgreSQL', 'AWS',
-    'Azure', 'Google Cloud', 'Docker', 'Kubernetes', 'Git', 'HTML',
-    'CSS', 'Bootstrap', 'jQuery', 'REST API', 'GraphQL', 'Pandas',
-    'NumPy', 'Matplotlib', 'Plotly', 'Scikit-learn', 'OpenCV'
-]
+# # Skills Database
+# SKILLS = [
+#     'Python', 'JavaScript', 'Java', 'C++', 'React', 'Angular', 'Vue.js',
+#     'Node.js', 'Django', 'Flask', 'Machine Learning', 'Deep Learning',
+#     'TensorFlow', 'PyTorch', 'SQL', 'MongoDB', 'PostgreSQL', 'AWS',
+#     'Azure', 'Google Cloud', 'Docker', 'Kubernetes', 'Git', 'HTML',
+#     'CSS', 'Bootstrap', 'jQuery', 'REST API', 'GraphQL', 'Pandas',
+#     'NumPy', 'Matplotlib', 'Plotly', 'Scikit-learn', 'OpenCV'
+# ]
 
-# =============================================================================
-# WORKING PDF GENERATION - NO DEPENDENCIES REQUIRED
-# =============================================================================
+# # =============================================================================
+# # WORKING PDF GENERATION - NO DEPENDENCIES REQUIRED
+# # =============================================================================
 
-def create_text_pdf_report(analysis: Dict[str, Any], candidate_name: str, job_title: str) -> str:
-    """Create a detailed text report that can be downloaded as PDF alternative"""
+# def create_text_pdf_report(analysis: Dict[str, Any], candidate_name: str, job_title: str) -> str:
+#     """Create a detailed text report that can be downloaded as PDF alternative"""
     
-    report_content = f"""
-🚀 NEXGEN AI RESUME ANALYSIS REPORT
-{'='*60}
+#     report_content = f"""
+# 🚀 NEXGEN AI RESUME ANALYSIS REPORT
+# {'='*60}
 
-📋 CANDIDATE INFORMATION
-{'='*30}
-Name: {candidate_name or 'N/A'}
-Position Applied: {job_title or 'N/A'}
-Analysis Date: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
-Generated By: NexGen AI Resume Analyzer
+# 📋 CANDIDATE INFORMATION
+# {'='*30}
+# Name: {candidate_name or 'N/A'}
+# Position Applied: {job_title or 'N/A'}
+# Analysis Date: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+# Generated By: NexGen AI Resume Analyzer
 
-📊 SCORE SUMMARY
-{'='*20}
-Overall Match Score: {analysis.get('overall_match_score', 0):.1f}%
-Semantic Score: {analysis.get('semantic_score', 0):.1f}%
-Skill Score: {analysis.get('skill_score', 0):.1f}%
+# 📊 SCORE SUMMARY
+# {'='*20}
+# Overall Match Score: {analysis.get('overall_match_score', 0):.1f}%
+# Semantic Score: {analysis.get('semantic_score', 0):.1f}%
+# Skill Score: {analysis.get('skill_score', 0):.1f}%
 
-✅ MATCHING SKILLS ({len(analysis.get('matching_skills', []))})
-{'='*30}
-{', '.join(analysis.get('matching_skills', ['None found']))}
+# ✅ MATCHING SKILLS ({len(analysis.get('matching_skills', []))})
+# {'='*30}
+# {', '.join(analysis.get('matching_skills', ['None found']))}
 
-🎯 SKILLS TO DEVELOP ({len(analysis.get('missing_skills', []))})
-{'='*35}
-{', '.join(analysis.get('missing_skills', ['None identified']))}
+# 🎯 SKILLS TO DEVELOP ({len(analysis.get('missing_skills', []))})
+# {'='*35}
+# {', '.join(analysis.get('missing_skills', ['None identified']))}
 
-🤖 AI INSIGHTS
-{'='*15}
-{analysis.get('ai_insights', {}).get('llm_analysis', 'Professional candidate with good potential')}
+# 🤖 AI INSIGHTS
+# {'='*15}
+# {analysis.get('ai_insights', {}).get('llm_analysis', 'Professional candidate with good potential')}
 
-💪 IDENTIFIED STRENGTHS
-{'='*25}
-{chr(10).join([f'• {strength}' for strength in analysis.get('ai_insights', {}).get('strengths', ['Strong technical background', 'Good communication skills'])])}
+# 💪 IDENTIFIED STRENGTHS
+# {'='*25}
+# {chr(10).join([f'• {strength}' for strength in analysis.get('ai_insights', {}).get('strengths', ['Strong technical background', 'Good communication skills'])])}
 
-📈 RECOMMENDATIONS
-{'='*20}
-{chr(10).join([f'• {rec}' for rec in analysis.get('ai_insights', {}).get('recommendations', ['Enhance technical skills', 'Add quantifiable achievements', 'Include relevant certifications'])])}
+# 📈 RECOMMENDATIONS
+# {'='*20}
+# {chr(10).join([f'• {rec}' for rec in analysis.get('ai_insights', {}).get('recommendations', ['Enhance technical skills', 'Add quantifiable achievements', 'Include relevant certifications'])])}
 
-🚀 CAREER ENHANCEMENT PLAN
-{'='*30}
-{chr(10).join([f'• {suggestion.get("skill", "General")}: {suggestion.get("action", "Continue development")}' for suggestion in analysis.get('enhancement_suggestions', [])])}
+# 🚀 CAREER ENHANCEMENT PLAN
+# {'='*30}
+# {chr(10).join([f'• {suggestion.get("skill", "General")}: {suggestion.get("action", "Continue development")}' for suggestion in analysis.get('enhancement_suggestions', [])])}
 
-📞 CONTACT SUPPORT
-{'='*20}
-For questions about this report, contact our support team.
-Visit: https://nexgenai.com/support
+# 📞 CONTACT SUPPORT
+# {'='*20}
+# For questions about this report, contact our support team.
+# Visit: https://nexgenai.com/support
 
-Generated by NexGen AI Resume Analyzer v2.0
-© 2024 NexGen AI Technologies
-"""
+# Generated by NexGen AI Resume Analyzer v2.0
+# © 2024 NexGen AI Technologies
+# """
     
-    return report_content
+#     return report_content
 
-# =============================================================================
-# WORKING JOB RECOMMENDATIONS - GUARANTEED RESULTS
-# =============================================================================
+# # =============================================================================
+# # WORKING JOB RECOMMENDATIONS - GUARANTEED RESULTS
+# # =============================================================================
 
-def get_sample_jobs_by_country(skills: List[str], country: str) -> List[Dict[str, Any]]:
-    """Generate realistic job samples based on country and skills"""
+# def get_sample_jobs_by_country(skills: List[str], country: str) -> List[Dict[str, Any]]:
+#     """Generate realistic job samples based on country and skills"""
     
-    country_jobs = {
-        "us": [
-            {
-                'title': 'Senior Software Engineer',
-                'company': 'TechCorp America',
-                'location': 'San Francisco, CA',
-                'salary': '$130,000 - $180,000',
-                'description': f'Join our innovative team building next-generation applications. Required skills: {", ".join(skills[:3])}. We offer competitive benefits, stock options, and remote work flexibility.',
-                'url': 'https://jobs.techcorp.com/senior-engineer',
-                'posted': '2 days ago',
-                'match_score': 87.5,
-                'country': '🇺🇸 USA'
-            },
-            {
-                'title': 'Data Scientist',
-                'company': 'AI Innovations LLC',
-                'location': 'New York, NY',
-                'salary': '$110,000 - $150,000',
-                'description': f'Analyze complex datasets and build ML models. Skills needed: {", ".join(skills[:4])}. Great opportunity for career growth in AI.',
-                'url': 'https://jobs.aiinnovations.com/data-scientist',
-                'posted': '1 day ago',
-                'match_score': 82.3,
-                'country': '🇺🇸 USA'
-            },
-            {
-                'title': 'Full Stack Developer',
-                'company': 'StartupXYZ',
-                'location': 'Austin, TX',
-                'salary': '$95,000 - $125,000',
-                'description': f'Build end-to-end web applications using {", ".join(skills[:5])}. Join a fast-growing startup with equity opportunities.',
-                'url': 'https://jobs.startupxyz.com/fullstack',
-                'posted': '3 days ago',
-                'match_score': 78.9,
-                'country': '🇺🇸 USA'
-            }
-        ],
-        "gb": [
-            {
-                'title': 'Software Developer',
-                'company': 'London Tech Solutions',
-                'location': 'London, UK',
-                'salary': '£60,000 - £85,000',
-                'description': f'Develop cutting-edge software solutions using {", ".join(skills[:3])}. Excellent benefits including private healthcare and pension.',
-                'url': 'https://jobs.londontech.co.uk/developer',
-                'posted': '1 day ago',
-                'match_score': 84.2,
-                'country': '🇬🇧 UK'
-            },
-            {
-                'title': 'DevOps Engineer',
-                'company': 'CloudFirst UK',
-                'location': 'Manchester, UK',
-                'salary': '£55,000 - £75,000',
-                'description': f'Manage cloud infrastructure and CI/CD pipelines. Experience with {", ".join(skills[:4])} preferred. Hybrid working available.',
-                'url': 'https://jobs.cloudfirst.co.uk/devops',
-                'posted': '2 days ago',
-                'match_score': 80.7,
-                'country': '🇬🇧 UK'
-            }
-        ],
-        "ca": [
-            {
-                'title': 'Machine Learning Engineer',
-                'company': 'AI Canada Inc.',
-                'location': 'Toronto, ON',
-                'salary': 'CAD $100,000 - $130,000',
-                'description': f'Build and deploy ML models at scale. Skills: {", ".join(skills[:4])}. Work with healthcare and fintech clients.',
-                'url': 'https://jobs.aicanada.com/ml-engineer',
-                'posted': '1 day ago',
-                'match_score': 88.1,
-                'country': '🇨🇦 Canada'
-            },
-            {
-                'title': 'Frontend Developer',
-                'company': 'Toronto Digital',
-                'location': 'Toronto, ON',
-                'salary': 'CAD $85,000 - $110,000',
-                'description': f'Create amazing user experiences using {", ".join(skills[:3])}. Join our award-winning design team.',
-                'url': 'https://jobs.torontodigital.ca/frontend',
-                'posted': '3 days ago',
-                'match_score': 79.4,
-                'country': '🇨🇦 Canada'
-            }
-        ],
-        "au": [
-            {
-                'title': 'Software Engineer',
-                'company': 'Sydney Tech Hub',
-                'location': 'Sydney, NSW',
-                'salary': 'AUD $90,000 - $120,000',
-                'description': f'Join our agile development team. Technologies: {", ".join(skills[:4])}. Beautiful harbourside office location.',
-                'url': 'https://jobs.sydneytech.com.au/engineer',
-                'posted': '2 days ago',
-                'match_score': 83.6,
-                'country': '🇦🇺 Australia'
-            }
-        ],
-        "de": [
-            {
-                'title': 'Backend Developer',
-                'company': 'Berlin Innovations',
-                'location': 'Berlin, Germany',
-                'salary': '€65,000 - €85,000',
-                'description': f'Develop scalable backend systems. Skills: {", ".join(skills[:3])}. Excellent work-life balance and benefits.',
-                'url': 'https://jobs.berlininnovations.de/backend',
-                'posted': '1 day ago',
-                'match_score': 81.3,
-                'country': '🇩🇪 Germany'
-            }
-        ]
-    }
+#     country_jobs = {
+#         "us": [
+#             {
+#                 'title': 'Senior Software Engineer',
+#                 'company': 'TechCorp America',
+#                 'location': 'San Francisco, CA',
+#                 'salary': '$130,000 - $180,000',
+#                 'description': f'Join our innovative team building next-generation applications. Required skills: {", ".join(skills[:3])}. We offer competitive benefits, stock options, and remote work flexibility.',
+#                 'url': 'https://jobs.techcorp.com/senior-engineer',
+#                 'posted': '2 days ago',
+#                 'match_score': 87.5,
+#                 'country': '🇺🇸 USA'
+#             },
+#             {
+#                 'title': 'Data Scientist',
+#                 'company': 'AI Innovations LLC',
+#                 'location': 'New York, NY',
+#                 'salary': '$110,000 - $150,000',
+#                 'description': f'Analyze complex datasets and build ML models. Skills needed: {", ".join(skills[:4])}. Great opportunity for career growth in AI.',
+#                 'url': 'https://jobs.aiinnovations.com/data-scientist',
+#                 'posted': '1 day ago',
+#                 'match_score': 82.3,
+#                 'country': '🇺🇸 USA'
+#             },
+#             {
+#                 'title': 'Full Stack Developer',
+#                 'company': 'StartupXYZ',
+#                 'location': 'Austin, TX',
+#                 'salary': '$95,000 - $125,000',
+#                 'description': f'Build end-to-end web applications using {", ".join(skills[:5])}. Join a fast-growing startup with equity opportunities.',
+#                 'url': 'https://jobs.startupxyz.com/fullstack',
+#                 'posted': '3 days ago',
+#                 'match_score': 78.9,
+#                 'country': '🇺🇸 USA'
+#             }
+#         ],
+#         "gb": [
+#             {
+#                 'title': 'Software Developer',
+#                 'company': 'London Tech Solutions',
+#                 'location': 'London, UK',
+#                 'salary': '£60,000 - £85,000',
+#                 'description': f'Develop cutting-edge software solutions using {", ".join(skills[:3])}. Excellent benefits including private healthcare and pension.',
+#                 'url': 'https://jobs.londontech.co.uk/developer',
+#                 'posted': '1 day ago',
+#                 'match_score': 84.2,
+#                 'country': '🇬🇧 UK'
+#             },
+#             {
+#                 'title': 'DevOps Engineer',
+#                 'company': 'CloudFirst UK',
+#                 'location': 'Manchester, UK',
+#                 'salary': '£55,000 - £75,000',
+#                 'description': f'Manage cloud infrastructure and CI/CD pipelines. Experience with {", ".join(skills[:4])} preferred. Hybrid working available.',
+#                 'url': 'https://jobs.cloudfirst.co.uk/devops',
+#                 'posted': '2 days ago',
+#                 'match_score': 80.7,
+#                 'country': '🇬🇧 UK'
+#             }
+#         ],
+#         "ca": [
+#             {
+#                 'title': 'Machine Learning Engineer',
+#                 'company': 'AI Canada Inc.',
+#                 'location': 'Toronto, ON',
+#                 'salary': 'CAD $100,000 - $130,000',
+#                 'description': f'Build and deploy ML models at scale. Skills: {", ".join(skills[:4])}. Work with healthcare and fintech clients.',
+#                 'url': 'https://jobs.aicanada.com/ml-engineer',
+#                 'posted': '1 day ago',
+#                 'match_score': 88.1,
+#                 'country': '🇨🇦 Canada'
+#             },
+#             {
+#                 'title': 'Frontend Developer',
+#                 'company': 'Toronto Digital',
+#                 'location': 'Toronto, ON',
+#                 'salary': 'CAD $85,000 - $110,000',
+#                 'description': f'Create amazing user experiences using {", ".join(skills[:3])}. Join our award-winning design team.',
+#                 'url': 'https://jobs.torontodigital.ca/frontend',
+#                 'posted': '3 days ago',
+#                 'match_score': 79.4,
+#                 'country': '🇨🇦 Canada'
+#             }
+#         ],
+#         "au": [
+#             {
+#                 'title': 'Software Engineer',
+#                 'company': 'Sydney Tech Hub',
+#                 'location': 'Sydney, NSW',
+#                 'salary': 'AUD $90,000 - $120,000',
+#                 'description': f'Join our agile development team. Technologies: {", ".join(skills[:4])}. Beautiful harbourside office location.',
+#                 'url': 'https://jobs.sydneytech.com.au/engineer',
+#                 'posted': '2 days ago',
+#                 'match_score': 83.6,
+#                 'country': '🇦🇺 Australia'
+#             }
+#         ],
+#         "de": [
+#             {
+#                 'title': 'Backend Developer',
+#                 'company': 'Berlin Innovations',
+#                 'location': 'Berlin, Germany',
+#                 'salary': '€65,000 - €85,000',
+#                 'description': f'Develop scalable backend systems. Skills: {", ".join(skills[:3])}. Excellent work-life balance and benefits.',
+#                 'url': 'https://jobs.berlininnovations.de/backend',
+#                 'posted': '1 day ago',
+#                 'match_score': 81.3,
+#                 'country': '🇩🇪 Germany'
+#             }
+#         ]
+#     }
     
-    # Get jobs for the country or default to US
-    jobs = country_jobs.get(country.lower(), country_jobs["us"])
+#     # Get jobs for the country or default to US
+#     jobs = country_jobs.get(country.lower(), country_jobs["us"])
     
-    # Calculate match scores based on skills
-    for job in jobs:
-        job_text = job['description'].lower()
-        skill_matches = sum(1 for skill in skills if skill.lower() in job_text)
-        if skill_matches > 0:
-            job['match_score'] = min((skill_matches / len(skills)) * 100 + 60, 95)
+#     # Calculate match scores based on skills
+#     for job in jobs:
+#         job_text = job['description'].lower()
+#         skill_matches = sum(1 for skill in skills if skill.lower() in job_text)
+#         if skill_matches > 0:
+#             job['match_score'] = min((skill_matches / len(skills)) * 100 + 60, 95)
     
-    return jobs
+#     return jobs
 
-# =============================================================================
-# SIMPLE AI ANALYSIS ENGINE
-# =============================================================================
+# # =============================================================================
+# # SIMPLE AI ANALYSIS ENGINE
+# # =============================================================================
 
-def analyze_resume_simple(resume_text: str, job_desc: str) -> Dict[str, Any]:
-    """Simple but effective resume analysis"""
+# def analyze_resume_simple(resume_text: str, job_desc: str) -> Dict[str, Any]:
+#     """Simple but effective resume analysis"""
     
-    if not resume_text or not job_desc:
-        return {
-            'overall_match_score': 0.0,
-            'semantic_score': 0.0,
-            'skill_score': 0.0,
-            'matching_skills': [],
-            'missing_skills': [],
-            'ai_insights': {}
-        }
+#     if not resume_text or not job_desc:
+#         return {
+#             'overall_match_score': 0.0,
+#             'semantic_score': 0.0,
+#             'skill_score': 0.0,
+#             'matching_skills': [],
+#             'missing_skills': [],
+#             'ai_insights': {}
+#         }
     
-    # Extract skills
-    resume_lower = resume_text.lower()
-    job_lower = job_desc.lower()
+#     # Extract skills
+#     resume_lower = resume_text.lower()
+#     job_lower = job_desc.lower()
     
-    resume_skills = [skill for skill in SKILLS if skill.lower() in resume_lower]
-    job_skills = [skill for skill in SKILLS if skill.lower() in job_lower]
+#     resume_skills = [skill for skill in SKILLS if skill.lower() in resume_lower]
+#     job_skills = [skill for skill in SKILLS if skill.lower() in job_lower]
     
-    # Calculate matches
-    matching_skills = list(set(resume_skills) & set(job_skills))
-    missing_skills = list(set(job_skills) - set(resume_skills))
+#     # Calculate matches
+#     matching_skills = list(set(resume_skills) & set(job_skills))
+#     missing_skills = list(set(job_skills) - set(resume_skills))
     
-    # Calculate scores
-    skill_score = (len(matching_skills) / max(len(job_skills), 1)) * 100 if job_skills else 50
+#     # Calculate scores
+#     skill_score = (len(matching_skills) / max(len(job_skills), 1)) * 100 if job_skills else 50
     
-    # Simple semantic score based on keyword frequency
-    common_words = ['experience', 'years', 'project', 'team', 'development', 'management']
-    semantic_matches = sum(1 for word in common_words if word in resume_lower and word in job_lower)
-    semantic_score = min((semantic_matches / len(common_words)) * 100 + 30, 90)
+#     # Simple semantic score based on keyword frequency
+#     common_words = ['experience', 'years', 'project', 'team', 'development', 'management']
+#     semantic_matches = sum(1 for word in common_words if word in resume_lower and word in job_lower)
+#     semantic_score = min((semantic_matches / len(common_words)) * 100 + 30, 90)
     
-    overall_score = (skill_score * 0.6 + semantic_score * 0.4)
+#     overall_score = (skill_score * 0.6 + semantic_score * 0.4)
     
-    # Generate insights
-    insights = {
-        'strengths': [],
-        'recommendations': [],
-        'llm_analysis': ''
-    }
+#     # Generate insights
+#     insights = {
+#         'strengths': [],
+#         'recommendations': [],
+#         'llm_analysis': ''
+#     }
     
-    # Analyze strengths
-    if any(word in resume_lower for word in ['lead', 'manage', 'director']):
-        insights['strengths'].append('Leadership and management experience')
-    if any(word in resume_lower for word in ['python', 'javascript', 'java']):
-        insights['strengths'].append('Strong programming skills')
-    if any(word in resume_lower for word in ['machine learning', 'ai', 'data science']):
-        insights['strengths'].append('Advanced AI/ML expertise')
-    if any(word in resume_lower for word in ['aws', 'azure', 'cloud']):
-        insights['strengths'].append('Cloud computing experience')
+#     # Analyze strengths
+#     if any(word in resume_lower for word in ['lead', 'manage', 'director']):
+#         insights['strengths'].append('Leadership and management experience')
+#     if any(word in resume_lower for word in ['python', 'javascript', 'java']):
+#         insights['strengths'].append('Strong programming skills')
+#     if any(word in resume_lower for word in ['machine learning', 'ai', 'data science']):
+#         insights['strengths'].append('Advanced AI/ML expertise')
+#     if any(word in resume_lower for word in ['aws', 'azure', 'cloud']):
+#         insights['strengths'].append('Cloud computing experience')
     
-    # Generate recommendations
-    insights['recommendations'] = [
-        'Add quantifiable achievements with specific metrics',
-        'Include relevant industry certifications',
-        'Highlight key projects and their business impact',
-        'Use action verbs to describe accomplishments'
-    ]
+#     # Generate recommendations
+#     insights['recommendations'] = [
+#         'Add quantifiable achievements with specific metrics',
+#         'Include relevant industry certifications',
+#         'Highlight key projects and their business impact',
+#         'Use action verbs to describe accomplishments'
+#     ]
     
-    # Simple sentiment analysis
-    try:
-        blob = TextBlob(resume_text)
-        sentiment = blob.sentiment.polarity
-        if sentiment > 0.1:
-            tone = "Confident and positive"
-        elif sentiment > -0.1:
-            tone = "Professional and neutral"
-        else:
-            tone = "Conservative and modest"
+#     # Simple sentiment analysis
+#     try:
+#         blob = TextBlob(resume_text)
+#         sentiment = blob.sentiment.polarity
+#         if sentiment > 0.1:
+#             tone = "Confident and positive"
+#         elif sentiment > -0.1:
+#             tone = "Professional and neutral"
+#         else:
+#             tone = "Conservative and modest"
         
-        insights['llm_analysis'] = f"This resume demonstrates {tone.lower()} communication style. The candidate shows strong technical competency with {len(resume_skills)} identified skills. Match score of {overall_score:.1f}% indicates {'excellent' if overall_score >= 80 else 'good' if overall_score >= 60 else 'moderate'} alignment with the position requirements."
-    except:
-        insights['llm_analysis'] = f"Professional candidate with {len(resume_skills)} technical skills identified. Shows {overall_score:.1f}% match with position requirements."
+#         insights['llm_analysis'] = f"This resume demonstrates {tone.lower()} communication style. The candidate shows strong technical competency with {len(resume_skills)} identified skills. Match score of {overall_score:.1f}% indicates {'excellent' if overall_score >= 80 else 'good' if overall_score >= 60 else 'moderate'} alignment with the position requirements."
+#     except:
+#         insights['llm_analysis'] = f"Professional candidate with {len(resume_skills)} technical skills identified. Shows {overall_score:.1f}% match with position requirements."
     
-    return {
-        'overall_match_score': round(overall_score, 1),
-        'semantic_score': round(semantic_score, 1),
-        'skill_score': round(skill_score, 1),
-        'matching_skills': matching_skills,
-        'missing_skills': missing_skills[:10],  # Limit to top 10
-        'ai_insights': insights,
-        'enhancement_suggestions': [
-            {'skill': skill, 'action': f'Consider learning {skill} through online courses', 'priority': 'High' if i < 3 else 'Medium'}
-            for i, skill in enumerate(missing_skills[:5])
-        ]
-    }
+#     return {
+#         'overall_match_score': round(overall_score, 1),
+#         'semantic_score': round(semantic_score, 1),
+#         'skill_score': round(skill_score, 1),
+#         'matching_skills': matching_skills,
+#         'missing_skills': missing_skills[:10],  # Limit to top 10
+#         'ai_insights': insights,
+#         'enhancement_suggestions': [
+#             {'skill': skill, 'action': f'Consider learning {skill} through online courses', 'priority': 'High' if i < 3 else 'Medium'}
+#             for i, skill in enumerate(missing_skills[:5])
+#         ]
+#     }
 
-# =============================================================================
-# DOCUMENT PROCESSING
-# =============================================================================
+# # =============================================================================
+# # DOCUMENT PROCESSING
+# # =============================================================================
 
-def extract_text_from_file(uploaded_file) -> str:
-    """Extract text from uploaded file"""
-    try:
-        if uploaded_file.type == "application/pdf":
-            reader = PyPDF2.PdfReader(uploaded_file)
-            text = ""
-            for page in reader.pages:
-                text += page.extract_text()
-            return text
+# def extract_text_from_file(uploaded_file) -> str:
+#     """Extract text from uploaded file"""
+#     try:
+#         if uploaded_file.type == "application/pdf":
+#             reader = PyPDF2.PdfReader(uploaded_file)
+#             text = ""
+#             for page in reader.pages:
+#                 text += page.extract_text()
+#             return text
         
-        elif uploaded_file.type in ["application/vnd.openxmlformats-officedocument.wordprocessingml.document"]:
-            doc = docx.Document(uploaded_file)
-            return "\n".join([paragraph.text for paragraph in doc.paragraphs])
+#         elif uploaded_file.type in ["application/vnd.openxmlformats-officedocument.wordprocessingml.document"]:
+#             doc = docx.Document(uploaded_file)
+#             return "\n".join([paragraph.text for paragraph in doc.paragraphs])
         
-        else:
-            return uploaded_file.read().decode('utf-8')
+#         else:
+#             return uploaded_file.read().decode('utf-8')
     
-    except Exception as e:
-        st.error(f"Error extracting text: {e}")
-        return ""
+#     except Exception as e:
+#         st.error(f"Error extracting text: {e}")
+#         return ""
 
-# =============================================================================
-# VISUALIZATIONS
-# =============================================================================
+# # =============================================================================
+# # VISUALIZATIONS
+# # =============================================================================
 
-def create_match_gauge(score: float):
-    """Create match score gauge"""
-    fig = go.Figure(go.Indicator(
-        mode = "gauge+number+delta",
-        value = score,
-        domain = {'x': [0, 1], 'y': [0, 1]},
-        title = {'text': "Match Score"},
-        delta = {'reference': 80},
-        gauge = {
-            'axis': {'range': [None, 100]},
-            'bar': {'color': "darkblue"},
-            'steps': [
-                {'range': [0, 50], 'color': "lightgray"},
-                {'range': [50, 80], 'color': "yellow"},
-                {'range': [80, 100], 'color': "green"}
-            ],
-            'threshold': {
-                'line': {'color': "red", 'width': 4},
-                'thickness': 0.75,
-                'value': 90
-            }
-        }
-    ))
-    fig.update_layout(height=300)
-    return fig
+# def create_match_gauge(score: float):
+#     """Create match score gauge"""
+#     fig = go.Figure(go.Indicator(
+#         mode = "gauge+number+delta",
+#         value = score,
+#         domain = {'x': [0, 1], 'y': [0, 1]},
+#         title = {'text': "Match Score"},
+#         delta = {'reference': 80},
+#         gauge = {
+#             'axis': {'range': [None, 100]},
+#             'bar': {'color': "darkblue"},
+#             'steps': [
+#                 {'range': [0, 50], 'color': "lightgray"},
+#                 {'range': [50, 80], 'color': "yellow"},
+#                 {'range': [80, 100], 'color': "green"}
+#             ],
+#             'threshold': {
+#                 'line': {'color': "red", 'width': 4},
+#                 'thickness': 0.75,
+#                 'value': 90
+#             }
+#         }
+#     ))
+#     fig.update_layout(height=300)
+#     return fig
 
-def create_skills_pie(matching_count: int, missing_count: int):
-    """Create skills pie chart"""
-    fig = go.Figure(data=[go.Pie(
-        labels=['Matching Skills', 'Missing Skills'],
-        values=[matching_count, missing_count],
-        hole=.5,
-        marker_colors=['#00d4aa', '#ff6b6b']
-    )])
-    fig.update_layout(title="Skills Breakdown", height=300)
-    return fig
+# def create_skills_pie(matching_count: int, missing_count: int):
+#     """Create skills pie chart"""
+#     fig = go.Figure(data=[go.Pie(
+#         labels=['Matching Skills', 'Missing Skills'],
+#         values=[matching_count, missing_count],
+#         hole=.5,
+#         marker_colors=['#00d4aa', '#ff6b6b']
+#     )])
+#     fig.update_layout(title="Skills Breakdown", height=300)
+#     return fig
 
-# =============================================================================
-# MAIN APPLICATION
-# =============================================================================
+# # =============================================================================
+# # MAIN APPLICATION
+# # =============================================================================
 
-def main():
-    """Main application"""
+# def main():
+#     """Main application"""
     
-    # Header
-    st.markdown('<div class="nexgen-header"><h1>🚀 Working AI Resume Analyzer</h1><p>PDF Generation + Job Recommendations - GUARANTEED TO WORK!</p></div>', unsafe_allow_html=True)
+#     # Header
+#     st.markdown('<div class="nexgen-header"><h1>🚀 Working AI Resume Analyzer</h1><p>PDF Generation + Job Recommendations - GUARANTEED TO WORK!</p></div>', unsafe_allow_html=True)
     
-    # Main interface
-    col1, col2 = st.columns([1, 1])
+#     # Main interface
+#     col1, col2 = st.columns([1, 1])
     
-    with col1:
-        st.subheader("📄 Upload Resume")
-        uploaded_file = st.file_uploader("Choose file", type=['pdf', 'docx', 'txt'])
-        candidate_name = st.text_input("Candidate Name", placeholder="Enter candidate name")
+#     with col1:
+#         st.subheader("📄 Upload Resume")
+#         uploaded_file = st.file_uploader("Choose file", type=['pdf', 'docx', 'txt'])
+#         candidate_name = st.text_input("Candidate Name", placeholder="Enter candidate name")
     
-    with col2:
-        st.subheader("💼 Job Description")
-        job_description = st.text_area("Paste job description", height=200, placeholder="Paste the job description here...")
-        job_title = st.text_input("Job Title", placeholder="Enter job title")
+#     with col2:
+#         st.subheader("💼 Job Description")
+#         job_description = st.text_area("Paste job description", height=200, placeholder="Paste the job description here...")
+#         job_title = st.text_input("Job Title", placeholder="Enter job title")
     
-    # Analysis button
-    if st.button("🔍 ANALYZE RESUME", type="primary", use_container_width=True):
-        if uploaded_file and job_description:
-            with st.spinner("🤖 Analyzing resume..."):
-                # Extract text
-                resume_text = extract_text_from_file(uploaded_file)
+#     # Analysis button
+#     if st.button("🔍 ANALYZE RESUME", type="primary", use_container_width=True):
+#         if uploaded_file and job_description:
+#             with st.spinner("🤖 Analyzing resume..."):
+#                 # Extract text
+#                 resume_text = extract_text_from_file(uploaded_file)
                 
-                if resume_text:
-                    # Perform analysis
-                    analysis = analyze_resume_simple(resume_text, job_description)
+#                 if resume_text:
+#                     # Perform analysis
+#                     analysis = analyze_resume_simple(resume_text, job_description)
                     
-                    # Store in session state
-                    st.session_state.analysis = analysis
-                    st.session_state.candidate_name = candidate_name
-                    st.session_state.job_title = job_title
+#                     # Store in session state
+#                     st.session_state.analysis = analysis
+#                     st.session_state.candidate_name = candidate_name
+#                     st.session_state.job_title = job_title
                     
-                    # Display results
-                    display_results(analysis, candidate_name, job_title)
-                else:
-                    st.error("Could not extract text from file")
-        else:
-            st.error("Please upload a resume and provide job description")
+#                     # Display results
+#                     display_results(analysis, candidate_name, job_title)
+#                 else:
+#                     st.error("Could not extract text from file")
+#         else:
+#             st.error("Please upload a resume and provide job description")
     
-    # Show results if available
-    if hasattr(st.session_state, 'analysis') and st.session_state.analysis:
-        display_results(st.session_state.analysis, 
-                       st.session_state.get('candidate_name', ''), 
-                       st.session_state.get('job_title', ''))
+#     # Show results if available
+#     if hasattr(st.session_state, 'analysis') and st.session_state.analysis:
+#         display_results(st.session_state.analysis, 
+#                        st.session_state.get('candidate_name', ''), 
+#                        st.session_state.get('job_title', ''))
 
-def display_results(analysis: Dict[str, Any], candidate_name: str, job_title: str):
-    """Display analysis results with working PDF and job recommendations"""
+# def display_results(analysis: Dict[str, Any], candidate_name: str, job_title: str):
+#     """Display analysis results with working PDF and job recommendations"""
     
-    st.markdown("---")
-    st.header("📊 Analysis Results")
+#     st.markdown("---")
+#     st.header("📊 Analysis Results")
     
-    # Metrics
-    col1, col2, col3, col4 = st.columns(4)
+#     # Metrics
+#     col1, col2, col3, col4 = st.columns(4)
     
-    with col1:
-        st.markdown(f'<div class="ai-metric"><h3>{analysis["overall_match_score"]:.1f}%</h3><p>Overall Match</p></div>', unsafe_allow_html=True)
+#     with col1:
+#         st.markdown(f'<div class="ai-metric"><h3>{analysis["overall_match_score"]:.1f}%</h3><p>Overall Match</p></div>', unsafe_allow_html=True)
     
-    with col2:
-        st.markdown(f'<div class="ai-metric"><h3>{analysis["semantic_score"]:.1f}%</h3><p>Semantic Score</p></div>', unsafe_allow_html=True)
+#     with col2:
+#         st.markdown(f'<div class="ai-metric"><h3>{analysis["semantic_score"]:.1f}%</h3><p>Semantic Score</p></div>', unsafe_allow_html=True)
     
-    with col3:
-        st.markdown(f'<div class="ai-metric"><h3>{len(analysis["matching_skills"])}</h3><p>Matching Skills</p></div>', unsafe_allow_html=True)
+#     with col3:
+#         st.markdown(f'<div class="ai-metric"><h3>{len(analysis["matching_skills"])}</h3><p>Matching Skills</p></div>', unsafe_allow_html=True)
     
-    with col4:
-        st.markdown(f'<div class="ai-metric"><h3>{len(analysis["missing_skills"])}</h3><p>Skills to Develop</p></div>', unsafe_allow_html=True)
+#     with col4:
+#         st.markdown(f'<div class="ai-metric"><h3>{len(analysis["missing_skills"])}</h3><p>Skills to Develop</p></div>', unsafe_allow_html=True)
     
-    # Visualizations
-    st.subheader("📈 Visual Analysis")
-    col1, col2 = st.columns(2)
+#     # Visualizations
+#     st.subheader("📈 Visual Analysis")
+#     col1, col2 = st.columns(2)
     
-    with col1:
-        fig_gauge = create_match_gauge(analysis['overall_match_score'])
-        st.plotly_chart(fig_gauge, use_container_width=True)
+#     with col1:
+#         fig_gauge = create_match_gauge(analysis['overall_match_score'])
+#         st.plotly_chart(fig_gauge, use_container_width=True)
     
-    with col2:
-        fig_pie = create_skills_pie(len(analysis['matching_skills']), len(analysis['missing_skills']))
-        st.plotly_chart(fig_pie, use_container_width=True)
+#     with col2:
+#         fig_pie = create_skills_pie(len(analysis['matching_skills']), len(analysis['missing_skills']))
+#         st.plotly_chart(fig_pie, use_container_width=True)
     
-    # Skills display
-    col1, col2 = st.columns(2)
+#     # Skills display
+#     col1, col2 = st.columns(2)
     
-    with col1:
-        st.subheader("✅ Matching Skills")
-        if analysis['matching_skills']:
-            for skill in analysis['matching_skills']:
-                st.markdown(f'<span class="skill-tag">{skill}</span>', unsafe_allow_html=True)
-        else:
-            st.info("No matching skills found")
+#     with col1:
+#         st.subheader("✅ Matching Skills")
+#         if analysis['matching_skills']:
+#             for skill in analysis['matching_skills']:
+#                 st.markdown(f'<span class="skill-tag">{skill}</span>', unsafe_allow_html=True)
+#         else:
+#             st.info("No matching skills found")
     
-    with col2:
-        st.subheader("🎯 Skills to Develop")
-        if analysis['missing_skills']:
-            for skill in analysis['missing_skills'][:10]:
-                st.markdown(f'<span class="skill-tag">{skill}</span>', unsafe_allow_html=True)
-        else:
-            st.info("No additional skills needed")
+#     with col2:
+#         st.subheader("🎯 Skills to Develop")
+#         if analysis['missing_skills']:
+#             for skill in analysis['missing_skills'][:10]:
+#                 st.markdown(f'<span class="skill-tag">{skill}</span>', unsafe_allow_html=True)
+#         else:
+#             st.info("No additional skills needed")
     
-    # AI Insights
-    st.subheader("🤖 AI Insights")
-    insights = analysis.get('ai_insights', {})
+#     # AI Insights
+#     st.subheader("🤖 AI Insights")
+#     insights = analysis.get('ai_insights', {})
     
-    if insights.get('llm_analysis'):
-        st.info(insights['llm_analysis'])
+#     if insights.get('llm_analysis'):
+#         st.info(insights['llm_analysis'])
     
-    col1, col2 = st.columns(2)
-    with col1:
-        st.markdown("**💪 Strengths:**")
-        for strength in insights.get('strengths', []):
-            st.write(f"• {strength}")
+#     col1, col2 = st.columns(2)
+#     with col1:
+#         st.markdown("**💪 Strengths:**")
+#         for strength in insights.get('strengths', []):
+#             st.write(f"• {strength}")
     
-    with col2:
-        st.markdown("**📈 Recommendations:**")
-        for rec in insights.get('recommendations', []):
-            st.write(f"• {rec}")
+#     with col2:
+#         st.markdown("**📈 Recommendations:**")
+#         for rec in insights.get('recommendations', []):
+#             st.write(f"• {rec}")
     
-    # =============================================================================
-    # WORKING PDF GENERATION SECTION
-    # =============================================================================
+#     # =============================================================================
+#     # WORKING PDF GENERATION SECTION
+#     # =============================================================================
     
-    st.markdown("---")
-    st.subheader("📄 Generate PDF Report")
+#     st.markdown("---")
+#     st.subheader("📄 Generate PDF Report")
     
-    col1, col2 = st.columns([2, 1])
+#     col1, col2 = st.columns([2, 1])
     
-    with col1:
-        if st.button("📄 GENERATE & DOWNLOAD PDF REPORT", type="primary", use_container_width=True):
-            with st.spinner("📄 Creating PDF report..."):
-                # Generate text-based report
-                report_content = create_text_pdf_report(analysis, candidate_name, job_title)
+#     with col1:
+#         if st.button("📄 GENERATE & DOWNLOAD PDF REPORT", type="primary", use_container_width=True):
+#             with st.spinner("📄 Creating PDF report..."):
+#                 # Generate text-based report
+#                 report_content = create_text_pdf_report(analysis, candidate_name, job_title)
                 
-                # Create filename
-                timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
-                filename = f"Resume_Analysis_{candidate_name or 'Report'}_{timestamp}.txt"
+#                 # Create filename
+#                 timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+#                 filename = f"Resume_Analysis_{candidate_name or 'Report'}_{timestamp}.txt"
                 
-                # Success message
-                st.success("✅ PDF Report Generated Successfully!")
-                st.balloons()
+#                 # Success message
+#                 st.success("✅ PDF Report Generated Successfully!")
+#                 st.balloons()
                 
-                # Download button
-                st.download_button(
-                    label="📥 DOWNLOAD REPORT NOW",
-                    data=report_content,
-                    file_name=filename,
-                    mime="text/plain",
-                    type="primary",
-                    use_container_width=True
-                )
+#                 # Download button
+#                 st.download_button(
+#                     label="📥 DOWNLOAD REPORT NOW",
+#                     data=report_content,
+#                     file_name=filename,
+#                     mime="text/plain",
+#                     type="primary",
+#                     use_container_width=True
+#                 )
     
-    with col2:
-        st.info("📊 **Report Includes:**\n\n• Complete analysis summary\n• Skills breakdown\n• AI insights\n• Career recommendations\n• Professional formatting")
+#     with col2:
+#         st.info("📊 **Report Includes:**\n\n• Complete analysis summary\n• Skills breakdown\n• AI insights\n• Career recommendations\n• Professional formatting")
     
-    # =============================================================================
-    # WORKING JOB RECOMMENDATIONS SECTION
-    # =============================================================================
+#     # =============================================================================
+#     # WORKING JOB RECOMMENDATIONS SECTION
+#     # =============================================================================
     
-    st.markdown("---")
-    st.subheader("🌍 Global Job Recommendations")
+#     st.markdown("---")
+#     st.subheader("🌍 Global Job Recommendations")
     
-    # Country selection
-    col1, col2, col3 = st.columns(3)
+#     # Country selection
+#     col1, col2, col3 = st.columns(3)
     
-    with col1:
-        countries = {
-            "🇺🇸 United States": "us",
-            "🇬🇧 United Kingdom": "gb", 
-            "🇨🇦 Canada": "ca",
-            "🇦🇺 Australia": "au",
-            "🇩🇪 Germany": "de"
-        }
+#     with col1:
+#         countries = {
+#             "🇺🇸 United States": "us",
+#             "🇬🇧 United Kingdom": "gb", 
+#             "🇨🇦 Canada": "ca",
+#             "🇦🇺 Australia": "au",
+#             "🇩🇪 Germany": "de"
+#         }
         
-        selected_country = st.selectbox("Select Country", list(countries.keys()))
-        country_code = countries[selected_country]
+#         selected_country = st.selectbox("Select Country", list(countries.keys()))
+#         country_code = countries[selected_country]
     
-    with col2:
-        location = st.text_input("City (Optional)", placeholder="e.g., London, Toronto")
+#     with col2:
+#         location = st.text_input("City (Optional)", placeholder="e.g., London, Toronto")
     
-    with col3:
-        remote_work = st.checkbox("Include Remote Jobs", value=True)
+#     with col3:
+#         remote_work = st.checkbox("Include Remote Jobs", value=True)
     
-    # Job search button
-    if st.button(f"🔍 FIND JOBS IN {selected_country.split(' ')[1].upper()}", type="primary", use_container_width=True):
-        with st.spinner(f"🌍 Searching for jobs in {selected_country}..."):
+#     # Job search button
+#     if st.button(f"🔍 FIND JOBS IN {selected_country.split(' ')[1].upper()}", type="primary", use_container_width=True):
+#         with st.spinner(f"🌍 Searching for jobs in {selected_country}..."):
             
-            # Get job recommendations
-            jobs = get_sample_jobs_by_country(analysis['matching_skills'], country_code)
+#             # Get job recommendations
+#             jobs = get_sample_jobs_by_country(analysis['matching_skills'], country_code)
             
-            if jobs:
-                st.success(f"🎉 Found {len(jobs)} job opportunities!")
+#             if jobs:
+#                 st.success(f"🎉 Found {len(jobs)} job opportunities!")
                 
-                # Job statistics
-                col1, col2, col3 = st.columns(3)
-                with col1:
-                    avg_match = sum(job['match_score'] for job in jobs) / len(jobs)
-                    st.metric("🎯 Average Match", f"{avg_match:.1f}%")
-                with col2:
-                    best_match = max(job['match_score'] for job in jobs)
-                    st.metric("🏆 Best Match", f"{best_match:.1f}%")
-                with col3:
-                    st.metric("💼 Total Jobs", len(jobs))
+#                 # Job statistics
+#                 col1, col2, col3 = st.columns(3)
+#                 with col1:
+#                     avg_match = sum(job['match_score'] for job in jobs) / len(jobs)
+#                     st.metric("🎯 Average Match", f"{avg_match:.1f}%")
+#                 with col2:
+#                     best_match = max(job['match_score'] for job in jobs)
+#                     st.metric("🏆 Best Match", f"{best_match:.1f}%")
+#                 with col3:
+#                     st.metric("💼 Total Jobs", len(jobs))
                 
-                st.markdown("---")
+#                 st.markdown("---")
                 
-                # Display jobs
-                for i, job in enumerate(jobs, 1):
-                    with st.expander(f"💼 {job['title']} @ {job['company']} - {job['match_score']:.1f}% Match", expanded=i<=2):
-                        col1, col2 = st.columns([3, 1])
+#                 # Display jobs
+#                 for i, job in enumerate(jobs, 1):
+#                     with st.expander(f"💼 {job['title']} @ {job['company']} - {job['match_score']:.1f}% Match", expanded=i<=2):
+#                         col1, col2 = st.columns([3, 1])
                         
-                        with col1:
-                            st.markdown(f"**🏢 Company:** {job['company']}")
-                            st.markdown(f"**📍 Location:** {job['location']}")
-                            st.markdown(f"**💰 Salary:** {job['salary']}")
-                            st.markdown(f"**📅 Posted:** {job['posted']}")
-                            st.markdown(f"**📋 Description:** {job['description']}")
+#                         with col1:
+#                             st.markdown(f"**🏢 Company:** {job['company']}")
+#                             st.markdown(f"**📍 Location:** {job['location']}")
+#                             st.markdown(f"**💰 Salary:** {job['salary']}")
+#                             st.markdown(f"**📅 Posted:** {job['posted']}")
+#                             st.markdown(f"**📋 Description:** {job['description']}")
                         
-                        with col2:
-                            if job['match_score'] >= 80:
-                                st.success(f"🏆 {job['match_score']:.1f}% Match")
-                            elif job['match_score'] >= 60:
-                                st.warning(f"🎯 {job['match_score']:.1f}% Match")
-                            else:
-                                st.info(f"💼 {job['match_score']:.1f}% Match")
+#                         with col2:
+#                             if job['match_score'] >= 80:
+#                                 st.success(f"🏆 {job['match_score']:.1f}% Match")
+#                             elif job['match_score'] >= 60:
+#                                 st.warning(f"🎯 {job['match_score']:.1f}% Match")
+#                             else:
+#                                 st.info(f"💼 {job['match_score']:.1f}% Match")
                             
-                            st.link_button("🔗 Apply Now", job['url'], use_container_width=True)
-                            st.markdown(f"**{job['country']}**")
+#                             st.link_button("🔗 Apply Now", job['url'], use_container_width=True)
+#                             st.markdown(f"**{job['country']}**")
             
-            else:
-                st.warning("No jobs found. Try a different country or update your skills.")
+#             else:
+#                 st.warning("No jobs found. Try a different country or update your skills.")
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()
