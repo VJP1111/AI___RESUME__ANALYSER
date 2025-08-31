@@ -1,0 +1,37 @@
+# Core Streamlit Framework
+streamlit>=1.28.0
+
+# Data Processing & Analysis (Windows Compatible)
+pandas>=1.5.0
+numpy>=1.21.0
+plotly>=5.0.0
+
+# Document Processing
+PyPDF2>=3.0.0
+python-docx>=0.8.11
+Pillow>=9.0.0
+
+# AI/NLP Capabilities (Lightweight versions)
+scikit-learn>=1.0.0
+textblob>=0.17.0
+
+# PDF Report Generation
+reportlab>=3.6.0
+
+# OpenAI Integration (Optional)
+openai>=0.27.0
+
+# Utilities
+python-dotenv>=0.19.0
+requests>=2.25.0
+click>=8.0.0
+
+# Security & Authentication
+bcrypt>=3.2.0
+PyJWT>=2.0.0
+cryptography>=3.0.0
+
+# Advanced AI Features (Optional - for full AI mode)
+# Uncomment below for advanced semantic analysis
+# sentence-transformers>=2.2.0
+# torch>=1.13.0
